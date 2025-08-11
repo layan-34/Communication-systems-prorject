@@ -1,0 +1,263 @@
+options:
+  parameters:
+    author: ''
+    catch_exceptions: 'True'
+    category: '[GRC Hier Blocks]'
+    cmake_opt: ''
+    comment: ''
+    copyright: ''
+    description: ''
+    gen_cmake: 'On'
+    gen_linking: dynamic
+    generate_options: qt_gui
+    hier_block_src_path: '.:'
+    id: untitled
+    max_nouts: '0'
+    output_language: python
+    placement: (0,0)
+    qt_qss_theme: ''
+    realtime_scheduling: ''
+    run: 'True'
+    run_command: '{python} -u {filename}'
+    run_options: prompt
+    sizing_mode: fixed
+    thread_safe_setters: ''
+    title: Not titled yet
+    window_size: (1000,1000)
+  states:
+    bus_sink: false
+    bus_source: false
+    bus_structure: null
+    coordinate: [16, 44.0]
+    rotation: 0
+    state: enabled
+
+blocks:
+- name: Ac
+  id: variable
+  parameters:
+    comment: ''
+    value: '1'
+  states:
+    bus_sink: false
+    bus_source: false
+    bus_structure: null
+    coordinate: [560, 44.0]
+    rotation: 0
+    state: enabled
+- name: Am
+  id: variable
+  parameters:
+    comment: ''
+    value: '1'
+  states:
+    bus_sink: false
+    bus_source: false
+    bus_structure: null
+    coordinate: [480, 44.0]
+    rotation: 0
+    state: enabled
+- name: fc
+  id: variable
+  parameters:
+    comment: ''
+    value: '1000'
+  states:
+    bus_sink: false
+    bus_source: false
+    bus_structure: null
+    coordinate: [304, 44.0]
+    rotation: 0
+    state: enabled
+- name: fm
+  id: variable
+  parameters:
+    comment: ''
+    value: '440'
+  states:
+    bus_sink: false
+    bus_source: false
+    bus_structure: null
+    coordinate: [392, 44.0]
+    rotation: 0
+    state: enabled
+- name: k
+  id: variable
+  parameters:
+    comment: ''
+    value: 1/Am
+  states:
+    bus_sink: false
+    bus_source: false
+    bus_structure: null
+    coordinate: [640, 44.0]
+    rotation: 0
+    state: enabled
+- name: samp_rate
+  id: variable
+  parameters:
+    comment: ''
+    value: '32000'
+  states:
+    bus_sink: false
+    bus_source: false
+    bus_structure: null
+    coordinate: [200, 44.0]
+    rotation: 0
+    state: enabled
+- name: audio_sink_1
+  id: audio_sink
+  parameters:
+    affinity: ''
+    alias: ''
+    comment: ''
+    device_name: ''
+    num_inputs: '1'
+    ok_to_block: 'True'
+    samp_rate: samp_rate
+  states:
+    bus_sink: false
+    bus_source: false
+    bus_structure: null
+    coordinate: [520, 644.0]
+    rotation: 0
+    state: enabled
+- name: epy_block_0
+  id: epy_block
+  parameters:
+    _source_code: "\nimport numpy as np\nfrom gnuradio import gr\n \n \nclass blk(gr.sync_block):\
+      \  # other base classes are basic_block, decim_block, interp_block\n    \"\"\
+      \"Embedded Python Block Envelope Detector \"\"\"\n \n    def __init__(self,\
+      \ threshold=0.0, mode=0, coeff=0.15):  # only default arguments here\n     \
+      \   \"\"\"arguments to this function show up as parameters in GRC\"\"\"\n  \
+      \      gr.sync_block.__init__(\n            self,\n            name='Envelope\
+      \ Detector',   # will show up in GRC\n            in_sig=[np.float32],\n   \
+      \         out_sig=[np.float32]\n        )\n        # if an attribute with the\
+      \ same name as a parameter is found,\n        # a callback is registered (properties\
+      \ work, too).\n \n        self.ry = 0\n        self.threshold = threshold\n\
+      \        self.mode = mode\n        self.coeff = coeff\n \n    def work(self,\
+      \ input_items, output_items):\n        \"\"\"Envelope Detect with Half/Full\
+      \ Wave Rectifier\"\"\"\n        buf = [0] * len(output_items[0])\n        a0\
+      \ = self.coeff\n        b1 = 1 - a0\n        # Rectify the signal. Mode 0 is\
+      \ half-wave, Mode 1 is full-wave\n        for i in range (0, len(input_items[0]))\
+      \ :\n            if self.mode == 1:\n                buf[i] = abs(input_items[0][i])\n\
+      \            else:\n                if input_items[0][i] > self.threshold:\n\
+      \                    buf[i] = input_items[0][i]\n                else:\n   \
+      \                 buf[i] = 0\n        # Simulate simple RC filter with a variable\
+      \ decay coefficient\n        for i in range(0, len(output_items[0])):\n    \
+      \        if i==0:\n                output_items[0][i] = a0*buf[i] + b1*self.ry\n\
+      \            else:\n                output_items[0][i] = a0*buf[i] + b1*output_items[0][i-1]\n\
+      \ \n        i = len(output_items[0])-1\n        self.ry = output_items[0][i]\n\
+      \ \n        return len(output_items[0])"
+    affinity: ''
+    alias: ''
+    coeff: '0.15'
+    comment: ''
+    maxoutbuf: '0'
+    minoutbuf: '0'
+    mode: '1'
+    threshold: '0.5'
+  states:
+    _io_cache: ('Envelope Detector', 'blk', [('threshold', '0.0'), ('mode', '0'),
+      ('coeff', '0.15')], [('0', 'float', 1)], [('0', 'float', 1)], 'Embedded Python
+      Block Envelope Detector ', ['coeff', 'mode', 'threshold'])
+    bus_sink: false
+    bus_source: false
+    bus_structure: null
+    coordinate: [304, 124.0]
+    rotation: 0
+    state: enabled
+- name: iio_pluto_source_0
+  id: iio_pluto_source
+  parameters:
+    affinity: ''
+    alias: ''
+    bandwidth: '20000000'
+    bbdc: 'True'
+    buffer_size: '32768'
+    comment: ''
+    filter: ''
+    filter_source: '''Auto'''
+    fpass: '0'
+    frequency: '2400000000'
+    fstop: '0'
+    gain1: '''slow_attack'''
+    len_tag_key: packet_len
+    manual_gain1: '64'
+    maxoutbuf: '0'
+    minoutbuf: '0'
+    quadrature: 'True'
+    rfdc: 'True'
+    samplerate: samp_rate
+    type: fc32
+    uri: ''
+  states:
+    bus_sink: false
+    bus_source: false
+    bus_structure: null
+    coordinate: [16, 160.0]
+    rotation: 0
+    state: enabled
+- name: low_pass_filter_0
+  id: low_pass_filter
+  parameters:
+    affinity: ''
+    alias: ''
+    beta: '6.76'
+    comment: ''
+    cutoff_freq: 2*fm
+    decim: '1'
+    gain: '1'
+    interp: '4'
+    maxoutbuf: '0'
+    minoutbuf: '0'
+    samp_rate: samp_rate
+    type: fir_filter_fff
+    width: '500'
+    win: window.WIN_HAMMING
+  states:
+    bus_sink: false
+    bus_source: false
+    bus_structure: null
+    coordinate: [336, 240.0]
+    rotation: 180
+    state: enabled
+- name: qtgui_sink_x_0
+  id: qtgui_sink_x
+  parameters:
+    affinity: ''
+    alias: ''
+    bw: samp_rate
+    comment: ''
+    fc: '0'
+    fftsize: '1024'
+    gui_hint: ''
+    maxoutbuf: '0'
+    minoutbuf: '0'
+    name: '""'
+    plotconst: 'True'
+    plotfreq: 'True'
+    plottime: 'True'
+    plotwaterfall: 'True'
+    rate: '10'
+    showports: 'False'
+    showrf: 'False'
+    type: float
+    wintype: window.WIN_BLACKMAN_hARRIS
+  states:
+    bus_sink: false
+    bus_source: false
+    bus_structure: null
+    coordinate: [488, 468.0]
+    rotation: 0
+    state: enabled
+
+connections:
+- [epy_block_0, '0', low_pass_filter_0, '0']
+- [iio_pluto_source_0, '0', epy_block_0, '0']
+- [low_pass_filter_0, '0', audio_sink_1, '0']
+- [low_pass_filter_0, '0', qtgui_sink_x_0, '0']
+
+metadata:
+  file_format: 1
+  grc_version: 3.10.10.0
